@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Hamgman - Heavy Metal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <!-- link para o font-awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <link rel="icon" href="static/img/icon.png" type="image/x-icon">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="static/js/fireworks.js"></script>
+</head>
+
+<body>
+    <header>
+        <h1>The Hangman</h1>
+
+        <div class="heavy-img">
+            <img id="heavy-metal-img" src="static/img/heavy-metal.png" alt="Heavy metal" class="heavy-metal-class">
+        </div>
+    </header>
+
+    <main>
+
+        <div class="hangman-title-game">
+            <h1>Qual o nome da Banda?</h1>
+        </div>
+
+        <!-- imagem da forca -->
+        <div class="hangman-img">
+            <img id="hangman-image" src="static/img/0.png" alt="Rocker hanging" class="hangman-image">
+        </div>
+
+        <div class="hangman-count">
+            <h2>Restam <span id="tentativas-restantes">{{ tentativas_restantes }}</span> tentativas</h2>
+        </div>
+
+        <!-- loop para montar os slots para cada letra da palavra secreta -->
+        <div class="hangman-slots">
+            {% for index in range(palavra_secreta|length) %}
+            <div class="hangman-slots-background">
+                <div id="slot-{{ index }}" class="hangman-slots-letter">
+                    {% if palavra_secreta[index] == '-' %}
+                    {{ "-" }}
+                    {% else %}
+                    {{" "}}
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+
+        <!-- loop para montar os botões de A a Z -->
+        <div class="hangman-buttons">
+            {% for letra in letras_disponiveis %}
+            <div class="hangman-button-background">
+                <button type="button" class="hangman-button" data-letra="{{ letra }}">{{ letra }}</button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="hangman-modal-info-band">
+            <span>Não descobriu?</span>
+            <span class="hangman-modal-info-band-btn">Clique para mais informações.</span>
+        </div>
+
+    </main>
+
+    <canvas id="canvas"></canvas>
+
+    <!-- modal para exibir o resultado -->
+    <div id="modal-result" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="text-result"></h2>
+            <div class="btn-refresh">
+                <i class="fas fa-redo"></i>
+            </div>
+            <h4>Recarregar</h4>
+        </div>
+    </div>
+
+    <!-- modal para exibir as informações do artista -->
+    <div id="modal-result-info-band" class="modal-info-band">
+        <div class="modal-hangman-info-band">
+            <span class="close-info-band">&times;</span>
+
+            <div class="hangman-info-band-formed">
+                <span id="hangman-info-band-title">Ano de Formação:</span>
+                <h2>{{ano_formacao}}</h2>
+            </div>
+
+            <div class="hangman-top-tracks">
+                <div class="hangman-top-tracks-title-content">
+                    <span id="hangman-info-band-title">Top Faixas</span>
+                    <span class="close-info-track-band"><i class="fas fa-eye-slash"></i></span>
+                </div>
+                {% for track in top_tracks %}
+                <div class="hangman-track-band-name" data-track="{{loop.index}}" {% if loop.index> 2 %} style="display:
+                    none;" {% endif %}>
+                    <h4>
+                        {% if loop.first %}
+                        1
+                        {% elif loop.index == 2 %}
+                        2
+                        {% else %}
+                        {{ loop.index }}
+                        {% endif %}
+                        - {{ track }}
+                    </h4>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="hangman-top-albums-container">
+                <div class="hangman-top-albums-content">
+                    <span id="hangman-info-band-title">Top Albuns</span>
+                    <span class="close-info-album-band"><i class="fas fa-eye-slash"></i></span>
+                </div>
+                <div class="hangman-top-albums">
+                    {% for album in top_albums_list %}
+                    <div class="hangman-info-band-img">
+                        <img src="{{album['large_image']}}" alt="{{ album['name'] }} img">
+                        <h2>{{ album['name'] }}</h2>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        $(document).ready(function () {
+            var tentativasRestantes = parseInt($('#tentativas-restantes').text());
+            var slotsPreenchidos = 0;
+
+            $('.hangman-button').click(function (event) {
+                event.preventDefault();
+
+                var letra = $(this).attr('data-letra');
+
+                if ($(this).hasClass('hangman-button-wrong') || $(this).hasClass('hangman-button-correct')) {
+                    return;
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/adivinhar-letra',
+                    data: { letra: letra },
+                    success: function (response) {
+                        var resultado = response.resultado;
+                        var contagem = response.contagem;
+                        var indices = response.indices;
+
+                        if (resultado === 'Correto') {
+                            $('[data-letra="' + letra + '"]').addClass('hangman-button-correct').removeClass('hangman-button-wrong');
+                            indices.forEach(function (index) {
+                                $('#slot-' + index).text(letra);
+                                slotsPreenchidos++;
+                            });
+
+                            // verifica se os slots foram preenchidos para indicar o ganhador
+                            if ($('.hangman-slots-letter').filter(function () {
+                                // verifica e conta os slots que não estão vazios '' 
+                                return $(this).text().trim() !== '';
+                            }).length === $('.hangman-slots-letter').length) {
+                                exibirModal("<span class='modal-correct-response'>Parabéns!</span><p>Você acertou!");
+                                exibirFogosDeArtificio();
+                            }
+
+                        } else {
+                            $('[data-letra="' + letra + '"]').addClass('hangman-button-wrong').removeClass('hangman-button-correct');
+                            $('#hangman-image').attr('src', 'static/img/' + contagem + '.png');
+
+                            // atualiza o número de tentativas
+                            tentativasRestantes--;
+                            $('#tentativas-restantes').text(tentativasRestantes);
+
+                            // verifica se o jogador perdeu
+                            if (tentativasRestantes === 0) {
+                                exibirModal("<span class='modal-wrong-response'> Você perdeu!</span><p>A resposta era: " +
+                                    response.palavra_secreta + ".");
+                            }
+                        }
+                    }
+                });
+            });
+
+            // exibir modal com informações da banda
+            $('.hangman-modal-info-band-btn').click(function (event) {
+                exibirModalInfoBand()
+            })
+
+            // mostrar modal com informações da banda
+            function exibirModalInfoBand() {
+                $('#modal-result-info-band').css('display', 'block');
+            }
+
+            // ocultar/mostrar faixas
+            $(document).ready(function () {
+                $('.close-info-track-band').click(function () {
+                    $('.hangman-track-band-name').not(':lt(2)').toggle();
+                    if ($(this).find('i').hasClass('fa-eye-slash'))
+                        $(this).find('i').removeClass('fa-eye-slash').addClass('fa-eye');
+                    else
+                        $(this).find('i').removeClass('fa-eye').addClass('fa-eye-slash');
+
+                });
+
+            });
+
+            // ocultar/mostrar albuns
+            $(document).ready(function () {
+                $('.close-info-album-band').click(function () {
+                    $('.hangman-info-band-img').each(function () {
+                        $(this).css('visibility', function (i, visibility) {
+                            return (visibility == 'visible') ? 'hidden' : 'visible';
+                        });
+                    });
+                    $(this).find('i').toggleClass('fa-eye-slash fa-eye');
+                });
+            });
+
+            // recarrega a página ao clicar
+            $('.close-info-band').click(function () {
+                $('#modal-result-info-band').css('display', 'none');
+            });
+
+            // função que exibe os fogos de artificio
+            function exibirFogosDeArtificio() {
+                // mostra o canvas de fogos de artifício
+                $('#canvas').css('display', 'block');
+
+                // criar fogos de artifício
+                for (var i = 0; i < 3; i++) {
+                    createFirework();
+                }
+
+                // adcionar a animação para os fogos de artifício
+                $('#canvas').addClass('fireworks-active');
+            }
+
+            // função para exibir o modal
+            function exibirModal(texto, class_modal) {
+                $('#text-result').html(texto);
+                $('#modal-result').css('display', 'block');
+            }
+
+            // recarrega a página ao clicar
+            $('.close').click(function () {
+                location.reload();
+            });
+
+            $('.btn-refresh').click(function () {
+                location.reload();
+            });
+        });
+    </script>
+
+</body>
+
+</html>

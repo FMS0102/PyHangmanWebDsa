@@ -1,0 +1,410 @@
+@import url("https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Metal+Mania&family=Roboto+Slab:wght@100..900&family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap");
+
+body {
+  font-family: "Roboto Slab", serif;
+  margin: 0;
+  padding: 0;
+  background-color: #1e1e1e;
+  color: #fff;
+}
+
+header {
+  background-color: #333;
+  color: #c0bebe;
+  padding: 5px;
+  text-align: center;
+}
+
+header h1 {
+  font-family: "Metal Mania", system-ui;
+  font-weight: 400;
+  font-size: 30px;
+  color: #ffffff;
+}
+
+h1 {
+  font-family: "Metal Mania", system-ui;
+  font-size: 30px;
+  color: #c70909;
+  margin: 0;
+  text-align: center;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.hangman-slots {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 80%;
+  align-content: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 10px;
+}
+
+#heavy-metal-img {
+  width: 330px;
+}
+
+.hangman-slots-background {
+  margin: 5px;
+  background-color: #222;
+  border: solid #4caf50 1px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hangman-slots-letter {
+  margin: 5px;
+  text-align: center;
+  color: #4caf50;
+  font-size: 1.2em;
+}
+
+.hangman-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 50%;
+  max-width: 550px;
+}
+
+.hangman-button-background {
+  margin: 5px;
+}
+
+.hangman-button {
+  width: 40px;
+  height: 40px;
+  background-color: #333;
+  border: 1px solid #4caf50;
+  color: #fff;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+.hangman-button:hover {
+  background-color: #4caf50;
+}
+
+.hangman-button-wrong {
+  background-color: #f10606;
+  border-color: #f10606;
+}
+
+.hangman-button-correct {
+  background-color: #21f106;
+  border-color: #21f106;
+}
+
+.hangman-image {
+  display: flex;
+  width: 390px;
+  height: auto;
+  justify-content: center;
+  align-items: center;
+}
+
+/* modal para exibir o resultado   */
+.hangman-count {
+  color: #c70909;
+  font-family: "Metal Mania", system-ui;
+  font-size: 25px;
+  text-align: center;
+}
+
+.hangman-count h2 {
+  margin: 0px;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+  padding-top: 60px;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  background-color: #222;
+  margin: 5% auto;
+  padding: 20px;
+  border: 1px solid #4caf50;
+  height: 50%;
+  max-height: 300px;
+  width: 80%;
+  max-width: 400px;
+  border-radius: 10px;
+  text-align: center;
+  justify-content: center;
+  position: relative;
+  align-items: center;
+}
+
+.modal-content p {
+  margin: 20px 10px;
+}
+
+.modal-content h4 {
+  margin: 0px;
+}
+
+.modal-content h2 {
+  display: block;
+  text-align: center;
+  font-size: 25px;
+  margin: 0px;
+}
+
+.modal-wrong-response {
+  font-family: "Metal Mania", system-ui;
+  color: #c70909;
+  font-size: 40px;
+}
+
+.modal-correct-response {
+  font-family: "Metal Mania", system-ui;
+  color: #4caf50;
+  font-size: 40px;
+}
+
+.close {
+  color: #4caf50;
+  font-size: 28px;
+  font-weight: bold;
+  position: absolute;
+  top: 10px;
+  right: 15px;
+}
+
+.close:hover,
+.close:focus {
+  color: #21f106;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #4caf50;
+  border: none;
+  border-radius: 5px;
+  padding: 5px;
+  margin: 10px auto;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 150px;
+}
+
+.btn-refresh:hover {
+  background-color: #21f106;
+}
+
+.fa-redo {
+  color: green;
+  font-size: 30px;
+  margin-right: 5px;
+}
+
+/* CSS para os fogos de artifício */
+#canvas {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+.modal-info-band {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+  padding-top: 60px;
+}
+
+.modal-hangman-info-band {
+  display: flex;
+  flex-direction: column;
+  background-color: #222;
+  margin: 5% auto;
+  padding: 20px;
+  border: 1px solid #4caf50;
+  height: 65%;
+  width: 80%;
+  max-width: 710px;
+  border-radius: 10px;
+  text-align: center;
+  justify-content: center;
+  position: relative;
+  align-items: center;
+}
+
+.modal-hangman-info-band h4 {
+  margin: 0px;
+}
+
+.hangman-info-band-formed {
+  margin-top: 50px;
+}
+
+.hangman-info-band-formed h2 {
+  margin: 10px 0px;
+}
+
+.close-info-band {
+  color: #4caf50;
+  font-size: 28px;
+  font-weight: bold;
+  position: absolute;
+  top: 10px;
+  right: 15px;
+}
+
+.close-info-band:hover,
+.close-info-band:focus {
+  color: #21f106;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.hangman-top-tracks {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.hangman-top-tracks-title-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px 0px;
+}
+
+#hangman-info-band-title {
+  margin: 0 auto;
+}
+
+.hangman-info-band-img {
+  margin: 0px;
+  visibility: hidden;
+}
+
+.hangman-info-band-img h2 {
+  font-size: 16px;
+  text-wrap: wrap;
+  width: 200px;
+  height: 60px;
+  margin: auto;
+  text-align: center;
+}
+
+.modal-hangman-info-band img {
+  width: 150px;
+}
+
+.hangman-top-albums-container {
+  margin-top: 10px;
+  width: 100%;
+}
+
+.hangman-top-albums {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.hangman-top-albums-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin: 20px 0px;
+}
+
+#hangman-info-band-title {
+  margin: 0 auto;
+}
+
+.hangman-info-band-img {
+  display: flex;
+  flex-direction: column;
+  margin: 20px;
+  align-items: center;
+}
+
+#hangman-info-band-title {
+  font-family: "Metal Mania", system-ui;
+  font-size: 35px;
+  color: #4caf50;
+}
+
+.hangman-modal-info-band {
+  margin-top: 20px;
+  font-family: "Metal Mania", system-ui;
+  font-size: 25px;
+  text-align: center;
+}
+
+.hangman-modal-info-band-btn {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.hangman-modal-info-band-btn:hover {
+  color: #4caf50;
+}
+
+@media screen and (max-width: 981px) {
+  .hangman-top-albums {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-hangman-info-band {
+    max-width: 350px;
+    height: 130%;
+  }
+
+  .hangman-info-band-formed {
+    margin-top: 160px;
+  }
+
+  .modal-info-band {
+    padding-top: 0px;
+  }
+
+  .hangman-modal-info-band {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
+}
