@@ -389,8 +389,7 @@ main {
   }
 
   .modal-hangman-info-band {
-    max-width: 350px;
-    height: 130%;
+    height: auto;
   }
 
   .hangman-info-band-formed {
@@ -406,5 +405,9 @@ main {
     align-items: center;
     flex-direction: column;
     margin-bottom: 20px;
+  }
+
+  .hangman-image {
+    width: 375px;
   }
 }
